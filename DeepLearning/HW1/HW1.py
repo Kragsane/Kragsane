@@ -15,24 +15,24 @@ from sklearn.cluster import KMeans
 from skimage import exposure
 from natsort import natsorted
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Flatten, MaxPooling2D, Conv2D
+from tensorflow.keras.layers import Dense, Flatten, MaxPooling2D, Conv2D, Dropout
 from tensorflow.keras import Sequential
 import warnings
 
-dd=os.listdir('TIN')
-f1 = open('train.txt', 'w')
-f2 = open('test.txt', 'w')
-for i in range(len(dd)):
-    d2 = os.listdir ('TIN/%s/images/'%(dd[i]))
-    d2 = natsorted(d2)
-    for j in range(200): #len(d2)-2
-        str1='TIN/%s/images/%s'%(dd[i], d2[j])
-        f1.write("%s %d\n" % (str1, i))
-    str1='TIN/%s/images/%s'%(dd[i], d2[-1])
-    f2.write("%s %d\n" % (str1, i))
+# dd=os.listdir('TIN')
+# f1 = open('train.txt', 'w')
+# f2 = open('test.txt', 'w')
+# for i in range(len(dd)):
+#     d2 = os.listdir ('TIN/%s/images/'%(dd[i]))
+#     d2 = natsorted(d2)
+#     for j in range(200): #len(d2)-2
+#         str1='TIN/%s/images/%s'%(dd[i], d2[j])
+#         f1.write("%s %d\n" % (str1, i))
+#     str1='TIN/%s/images/%s'%(dd[i], d2[-1])
+#     f2.write("%s %d\n" % (str1, i))
 
-f1.close()
-f2.close()
+# f1.close()
+# f2.close()
 
 def create_codebook(f, num_visual_words=128):
     f = open(f)
@@ -257,7 +257,7 @@ X_test_cnn, y_test = load_img('test.txt', processing_choice=3)
 # Preprocess the data (normalize pixel values to be between 0 and 1)
 X_train_cnn, X_test_cnn = X_train_cnn / 255.0, X_test_cnn / 255.0
 # Split the data into training and testing sets
-train_images, val_images, train_labels, val_labels = train_test_split(X_train_cnn, y_train, test_size=0.2, random_state=42)
+train_images, val_images, train_labels, val_labels = train_test_split(X_train_cnn, y_train, test_size=0.3, random_state=42)
 
 # Define the CNN model
 def create_cnn_model(input_shape):
@@ -267,8 +267,10 @@ def create_cnn_model(input_shape):
     model.add(Conv2D(64, (3, 3), activation='relu'))
     model.add(MaxPooling2D((2, 2)))
     model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(MaxPooling2D((2, 2)))
+    model.add(Dropout(0.3))
     model.add(Flatten())
-    # model.add(Dense(64, activation='relu'))
+    model.add(Dense(1000, activation='relu'))
     model.add(Dense(200, activation='softmax'))  # Adjust output size based on your task
     return model
 
